@@ -27,6 +27,10 @@ import {
   type Market,
 } from "./mock-data";
 import { fetchLiveXlmPrice, type LiveXlmPrice } from "./live-price";
+import aquaLogo from "./assets/tokens/aqua.png";
+import eurcLogo from "./assets/tokens/eurc.png";
+import usdcLogo from "./assets/tokens/usdc.svg";
+import xlmLogo from "./assets/tokens/xlm.svg";
 import {
   connectWallet,
   disconnectWallet,
@@ -118,6 +122,22 @@ function WalletButton({ address, connecting, onConnect, onDisconnect }: WalletBu
   );
 }
 
+const assetLogos: Record<string, string> = {
+  AQUA: aquaLogo,
+  EURC: eurcLogo,
+  USDC: usdcLogo,
+  XLM: xlmLogo,
+};
+
+function AssetIcon({ symbol }: { symbol: string }) {
+  const logo = assetLogos[symbol.toUpperCase()];
+  return (
+    <span className={`asset-icon asset-${symbol.toLowerCase().replace(".", "")}${logo ? " has-logo" : ""}`}>
+      {logo ? <img src={logo} alt="" /> : symbol.slice(0, 1)}
+    </span>
+  );
+}
+
 function MarketPicker({ market, onSelect }: { market: Market; onSelect: (market: Market) => void }) {
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
@@ -134,12 +154,8 @@ function MarketPicker({ market, onSelect }: { market: Market; onSelect: (market:
     <div className="market-picker" ref={root}>
       <button type="button" className="market-picker-trigger" onClick={() => setOpen((value) => !value)}>
         <div className="asset-stack" aria-hidden="true">
-          <span className={`asset-icon asset-${market.base.toLowerCase().replace(".", "")}`}>
-            {market.base.slice(0, 1)}
-          </span>
-          <span className={`asset-icon asset-${market.quote.toLowerCase().replace(".", "")}`}>
-            {market.quote.slice(0, 1)}
-          </span>
+          <AssetIcon symbol={market.base} />
+          <AssetIcon symbol={market.quote} />
         </div>
         <div>
           <strong>{market.base}/{market.quote}</strong>
@@ -161,7 +177,13 @@ function MarketPicker({ market, onSelect }: { market: Market; onSelect: (market:
                 setOpen(false);
               }}
             >
-              <span className="market-symbols">{item.base}/{item.quote}</span>
+              <span className="market-symbols">
+                <span className="asset-stack asset-stack-sm" aria-hidden="true">
+                  <AssetIcon symbol={item.base} />
+                  <AssetIcon symbol={item.quote} />
+                </span>
+                {item.base}/{item.quote}
+              </span>
               <span className="market-menu-price">{formatPrice(item.price)}</span>
               <span className={item.change >= 0 ? "positive" : "negative"}>
                 {item.change >= 0 ? "+" : ""}{item.change.toFixed(2)}%
